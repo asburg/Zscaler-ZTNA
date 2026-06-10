@@ -23,11 +23,14 @@
           <a href="#apps" class="nav-link" data-page-link="apps">Private Apps</a>
           <a href="#connectors" class="nav-link" data-page-link="connectors">App Connectors</a>
           <a href="#policies" class="nav-link" data-page-link="policies">Policy Control</a>
+          <a href="#identity" class="nav-link" data-page-link="identity">Identity Provider</a>
+          <a href="#posture" class="nav-link" data-page-link="posture">Posture Policy</a>
           <a href="#sessions" class="nav-link" data-page-link="sessions">Sessions</a>
           <a href="#devices" class="nav-link" data-page-link="devices">Devices</a>
           <a href="#zdx" class="nav-link" data-page-link="zdx">ZDX Monitoring</a>
           <a href="#zia" class="nav-link" data-page-link="zia">ZIA Security</a>
           <a href="#logs" class="nav-link" data-page-link="logs">Logs</a>
+          <a href="#evidence" class="nav-link" data-page-link="evidence">Evidence Export</a>
           <a href="#response" class="nav-link" data-page-link="response">Response</a>
         </nav>
 
@@ -104,6 +107,8 @@
                 <button class="secondary" type="button" data-go-page="apps">View App Segments</button>
                 <button class="secondary" type="button" data-go-page="connectors">Check Connectors</button>
                 <button class="secondary" type="button" data-go-page="policies">Manage Policies</button>
+                <button class="secondary" type="button" data-go-page="identity">Review IdP Sync</button>
+                <button class="secondary" type="button" data-go-page="evidence">Export Evidence</button>
                 <button class="secondary" type="button" data-go-page="zdx">Monitor Experience</button>
                 <button class="secondary" type="button" data-go-page="response">Review Response Queue</button>
               </div>
@@ -231,6 +236,7 @@
                   <thead>
                     <tr>
                       <th>Policy</th>
+                      <th>Priority</th>
                       <th>Group</th>
                       <th>App</th>
                       <th>Posture</th>
@@ -269,6 +275,61 @@
                 <button type="submit">Create Policy</button>
               </form>
             </section>
+          </section>
+        </section>
+
+        <section class="page" data-page="identity">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Identity Provider</p>
+              <h1>Directory Synchronization</h1>
+            </div>
+            <span class="tag">SAML + SCIM active</span>
+          </header>
+          <section class="grid-main">
+            <section class="panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">User Groups</p>
+                  <h2>Synced Groups</h2>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Group</th>
+                      <th>Members</th>
+                      <th>MFA</th>
+                      <th>Sync</th>
+                    </tr>
+                  </thead>
+                  <tbody id="identityBody"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Connector</p>
+                  <h2>IdP Status</h2>
+                </div>
+              </div>
+              <div class="cards" id="idpCards"></div>
+            </section>
+          </section>
+        </section>
+
+        <section class="page" data-page="posture">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Endpoint Trust</p>
+              <h1>Posture Policies</h1>
+            </div>
+            <span class="tag">Continuous verification</span>
+          </header>
+          <section class="panel">
+            <div class="cards" id="postureCards"></div>
           </section>
         </section>
 
@@ -386,6 +447,50 @@
                 </thead>
                 <tbody id="logBody"></tbody>
               </table>
+            </div>
+          </section>
+        </section>
+
+        <section class="page" data-page="evidence">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Evidence Package</p>
+              <h1>Export Center</h1>
+            </div>
+            <span class="tag">CSV artifacts</span>
+          </header>
+          <section class="panel">
+            <div class="cards">
+              <article class="app-card">
+                <header><strong>Policy Matrix</strong><span class="pill">CSV</span></header>
+                <small>Access policy priority, user groups, posture requirements, and application segments.</small>
+                <button type="button" data-export="policies">Export Policy Matrix</button>
+              </article>
+              <article class="app-card">
+                <header><strong>Application Inventory</strong><span class="pill">CSV</span></header>
+                <small>Private apps, segments, connectors, ports, sensitivity, and health status.</small>
+                <button type="button" data-export="apps">Export App Inventory</button>
+              </article>
+              <article class="app-card">
+                <header><strong>Connector Health</strong><span class="pill">CSV</span></header>
+                <small>Connector groups, site placement, version, active tunnels, heartbeat, and latency.</small>
+                <button type="button" data-export="connectors">Export Connector Health</button>
+              </article>
+              <article class="app-card">
+                <header><strong>Identity Groups</strong><span class="pill">CSV</span></header>
+                <small>IdP groups, member counts, MFA enforcement, and synchronization state.</small>
+                <button type="button" data-export="identity">Export Identity Groups</button>
+              </article>
+              <article class="app-card">
+                <header><strong>Posture Policies</strong><span class="pill">CSV</span></header>
+                <small>P0-P3 posture policy definitions and technical requirements.</small>
+                <button type="button" data-export="posture">Export Posture Policies</button>
+              </article>
+              <article class="app-card">
+                <header><strong>Access Logs</strong><span class="pill">CSV</span></header>
+                <small>Access decisions, policy matches, sessions, and denial reasons.</small>
+                <button type="button" data-export="logs">Export Access Logs</button>
+              </article>
             </div>
           </section>
         </section>

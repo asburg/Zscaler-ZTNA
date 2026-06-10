@@ -27,10 +27,29 @@ const state = {
     { id: "app-db", name: "Student Records Database", segment: "SEG-CRITICAL-DB", connector: "Restricted backend path", sensitivity: "Critical", port: "5432", health: "Protected" },
   ],
   connectors: [
-    { id: "con-web", group: "CG-EDU-WEB", site: "Internal Web Subnet", status: "Healthy", heartbeat: "12 sec ago", apps: ["Student Portal", "LMS"], cpu: "18%", latency: "22 ms" },
-    { id: "con-admin", group: "CG-EDU-ADMIN", site: "Restricted Admin Subnet", status: "Healthy", heartbeat: "18 sec ago", apps: ["Grade Management", "Admin Dashboard"], cpu: "24%", latency: "31 ms" },
-    { id: "con-api", group: "CG-EDU-API", site: "Developer API Subnet", status: "Healthy", heartbeat: "15 sec ago", apps: ["Internal API Dev"], cpu: "16%", latency: "28 ms" },
-    { id: "con-contractor", group: "CG-EDU-CONTRACTOR", site: "Project App Subnet", status: "Healthy", heartbeat: "21 sec ago", apps: ["Contractor App"], cpu: "12%", latency: "34 ms" },
+    { id: "con-web", group: "CG-EDU-WEB", site: "Internal Web Subnet", status: "Healthy", heartbeat: "12 sec ago", apps: ["Student Portal", "LMS"], cpu: "18%", latency: "22 ms", instances: 2, tunnels: 8, version: "24.3.1", region: "Asia Pacific" },
+    { id: "con-admin", group: "CG-EDU-ADMIN", site: "Restricted Admin Subnet", status: "Healthy", heartbeat: "18 sec ago", apps: ["Grade Management", "Admin Dashboard"], cpu: "24%", latency: "31 ms", instances: 2, tunnels: 6, version: "24.3.1", region: "Asia Pacific" },
+    { id: "con-api", group: "CG-EDU-API", site: "Developer API Subnet", status: "Healthy", heartbeat: "15 sec ago", apps: ["Internal API Dev"], cpu: "16%", latency: "28 ms", instances: 2, tunnels: 4, version: "24.3.1", region: "Asia Pacific" },
+    { id: "con-contractor", group: "CG-EDU-CONTRACTOR", site: "Project App Subnet", status: "Healthy", heartbeat: "21 sec ago", apps: ["Contractor App"], cpu: "12%", latency: "34 ms", instances: 1, tunnels: 3, version: "24.2.9", region: "Asia Pacific" },
+  ],
+  identityGroups: [
+    { group: "EDU-Students", members: 1240, mfa: "Required", sync: "Synced" },
+    { group: "EDU-Teachers", members: 86, mfa: "Required", sync: "Synced" },
+    { group: "EDU-Academic-Admins", members: 14, mfa: "Phishing-resistant", sync: "Synced" },
+    { group: "EDU-IT-Admins", members: 7, mfa: "Phishing-resistant", sync: "Synced" },
+    { group: "EDU-Developers", members: 18, mfa: "Required", sync: "Synced" },
+    { group: "EDU-Contractors", members: 11, mfa: "Required", sync: "Synced" },
+  ],
+  idpStatus: [
+    { name: "SAML Authentication", value: "Active", detail: "Signed assertions accepted from EDU IdP" },
+    { name: "SCIM Provisioning", value: "Active", detail: "Groups and users synchronized every 15 minutes" },
+    { name: "MFA Enforcement", value: "Active", detail: "Privileged groups require stronger authentication" },
+  ],
+  posturePolicies: [
+    { level: "P0", name: "Browser Access", requirements: "MFA verified, valid IdP session", appliesTo: "Student Portal, LMS" },
+    { level: "P1", name: "Compliant Endpoint", requirements: "Client Connector healthy, endpoint protection active, supported OS", appliesTo: "Teachers, Developers, Contractors" },
+    { level: "P2", name: "Managed Secure Endpoint", requirements: "Managed device, disk encryption, current OS patch, EDR healthy", appliesTo: "Academic Admins, IT Admins" },
+    { level: "P3", name: "Restricted Admin Workstation", requirements: "Privileged workstation, strict monitoring, hardened admin profile", appliesTo: "Sensitive admin operations" },
   ],
   zdx: [
     { user: "Alya Putri", app: "Student Portal", score: 92, latency: "38 ms", device: "Good", path: "Good" },
@@ -74,6 +93,9 @@ const els = {
   appCards: document.querySelector("#appCards"),
   appSearch: document.querySelector("#appSearch"),
   connectorCards: document.querySelector("#connectorCards"),
+  identityBody: document.querySelector("#identityBody"),
+  idpCards: document.querySelector("#idpCards"),
+  postureCards: document.querySelector("#postureCards"),
   policyBody: document.querySelector("#policyBody"),
   policyCount: document.querySelector("#policyCount"),
   policySearch: document.querySelector("#policySearch"),
@@ -249,6 +271,11 @@ function renderConnectors() {
             <div class="metric-box"><strong>${connector.cpu}</strong><small>CPU</small></div>
             <div class="metric-box"><strong>${connector.latency}</strong><small>Latency</small></div>
           </div>
+          <div class="metric-row">
+            <div class="metric-box"><strong>${connector.instances}</strong><small>Instances</small></div>
+            <div class="metric-box"><strong>${connector.tunnels}</strong><small>Tunnels</small></div>
+            <div class="metric-box"><strong>${connector.version}</strong><small>Version</small></div>
+          </div>
           <div class="app-actions">
             <button type="button" data-detail-connector="${connector.id}">Details</button>
             <button class="ghost" type="button" data-check-connector="${connector.id}">Check</button>
@@ -269,19 +296,71 @@ function renderPolicies() {
   els.policyBody.innerHTML = policies
     .map((rule) => {
       const app = byId(state.apps, rule.appId);
+      const priority = state.policies.findIndex((item) => item.id === rule.id) + 1;
       return `
         <tr>
           <td>${rule.id}</td>
+          <td>${priority}</td>
           <td>${rule.group}</td>
           <td>${app.name}</td>
           <td>${rule.minPosture}+</td>
           <td>
             <button class="ghost" type="button" data-detail-policy="${rule.id}">Details</button>
+            <button class="ghost" type="button" data-move-policy="${rule.id}" data-direction="up">Up</button>
+            <button class="ghost" type="button" data-move-policy="${rule.id}" data-direction="down">Down</button>
             <button class="ghost" type="button" data-delete-policy="${rule.id}">Delete</button>
           </td>
         </tr>
       `;
     })
+    .join("");
+}
+
+function renderIdentity() {
+  els.identityBody.innerHTML = state.identityGroups
+    .map(
+      (group) => `
+        <tr>
+          <td>${group.group}</td>
+          <td>${group.members}</td>
+          <td>${group.mfa}</td>
+          <td>${group.sync}</td>
+        </tr>
+      `,
+    )
+    .join("");
+
+  els.idpCards.innerHTML = state.idpStatus
+    .map(
+      (item) => `
+        <article class="app-card">
+          <header>
+            <strong>${item.name}</strong>
+            <span class="pill">${item.value}</span>
+          </header>
+          <small>${item.detail}</small>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function renderPosturePolicies() {
+  els.postureCards.innerHTML = state.posturePolicies
+    .map(
+      (policy) => `
+        <article class="app-card">
+          <header>
+            <div>
+              <strong>${policy.level} - ${policy.name}</strong>
+              <small>${policy.appliesTo}</small>
+            </div>
+            <span class="pill">${policy.level}</span>
+          </header>
+          <small>${policy.requirements}</small>
+        </article>
+      `,
+    )
     .join("");
 }
 
@@ -448,6 +527,8 @@ function renderKpis() {
 function renderAll() {
   renderApps();
   renderConnectors();
+  renderIdentity();
+  renderPosturePolicies();
   renderPolicies();
   renderSessions();
   renderDevices();
@@ -560,6 +641,63 @@ function exportCsv() {
   URL.revokeObjectURL(url);
 }
 
+function downloadCsv(filename, header, rows) {
+  const csvRows = rows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(","));
+  const blob = new Blob([[header.join(","), ...csvRows].join("\n")], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportEvidence(type) {
+  if (type === "policies") {
+    downloadCsv(
+      "policy-matrix.csv",
+      ["priority", "policy_id", "group", "application", "minimum_posture", "action"],
+      state.policies.map((policy, index) => [index + 1, policy.id, policy.group, byId(state.apps, policy.appId).name, policy.minPosture, "Allow"]),
+    );
+  }
+
+  if (type === "apps") {
+    downloadCsv(
+      "application-inventory.csv",
+      ["name", "segment", "connector", "sensitivity", "port", "health"],
+      state.apps.map((app) => [app.name, app.segment, app.connector, app.sensitivity, app.port, app.health]),
+    );
+  }
+
+  if (type === "connectors") {
+    downloadCsv(
+      "connector-health.csv",
+      ["group", "site", "status", "heartbeat", "instances", "tunnels", "version", "region", "latency", "protected_apps"],
+      state.connectors.map((connector) => [connector.group, connector.site, connector.status, connector.heartbeat, connector.instances, connector.tunnels, connector.version, connector.region, connector.latency, connector.apps.join("; ")]),
+    );
+  }
+
+  if (type === "identity") {
+    downloadCsv(
+      "identity-groups.csv",
+      ["group", "members", "mfa", "sync"],
+      state.identityGroups.map((group) => [group.group, group.members, group.mfa, group.sync]),
+    );
+  }
+
+  if (type === "posture") {
+    downloadCsv(
+      "posture-policies.csv",
+      ["level", "name", "requirements", "applies_to"],
+      state.posturePolicies.map((policy) => [policy.level, policy.name, policy.requirements, policy.appliesTo]),
+    );
+  }
+
+  if (type === "logs") {
+    exportCsv();
+  }
+}
+
 els.userSelect.addEventListener("change", syncDeviceSelect);
 els.accessForm.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -624,13 +762,15 @@ document.addEventListener("click", (event) => {
   if (detailPolicy) {
     const policy = state.policies.find((item) => item.id === detailPolicy);
     const app = byId(state.apps, policy.appId);
+    const priority = state.policies.findIndex((item) => item.id === detailPolicy) + 1;
     openDrawer("Access Policy", policy.id, [
+      ["Priority", priority],
       ["User Group", policy.group],
       ["Application", app.name],
       ["Application Segment", app.segment],
       ["Minimum Posture", `${policy.minPosture}+`],
       ["Action", "Allow"],
-      ["Priority", "First match by group and app segment"],
+      ["Evaluation", "First matching rule by priority order"],
     ]);
   }
 
@@ -643,6 +783,10 @@ document.addEventListener("click", (event) => {
       ["Last Heartbeat", connector.heartbeat],
       ["CPU", connector.cpu],
       ["Latency", connector.latency],
+      ["Connector Instances", connector.instances],
+      ["Active Tunnels", connector.tunnels],
+      ["Version", connector.version],
+      ["Service Edge Region", connector.region],
       ["Protected Apps", connector.apps.join(", ")],
     ]);
   }
@@ -668,6 +812,28 @@ document.addEventListener("click", (event) => {
   if (policyId) {
     state.policies = state.policies.filter((rule) => rule.id !== policyId);
     renderAll();
+  }
+
+  const movePolicy = target.dataset.movePolicy;
+  if (movePolicy) {
+    const index = state.policies.findIndex((rule) => rule.id === movePolicy);
+    const direction = target.dataset.direction === "up" ? -1 : 1;
+    const nextIndex = index + direction;
+    if (index >= 0 && nextIndex >= 0 && nextIndex < state.policies.length) {
+      const [rule] = state.policies.splice(index, 1);
+      state.policies.splice(nextIndex, 0, rule);
+      state.logs.unshift({
+        time: now(),
+        user: "Policy Admin",
+        group: "System",
+        device: "Console",
+        app: "Policy Control",
+        policy: movePolicy,
+        decision: "Reordered",
+        reason: `${movePolicy} priority changed to ${nextIndex + 1}.`,
+      });
+      renderAll();
+    }
   }
 
   const sessionId = target.dataset.revoke;
@@ -727,6 +893,11 @@ document.addEventListener("click", (event) => {
 
   if (target.id === "exportLogs") {
     exportCsv();
+  }
+
+  const exportType = target.dataset.export;
+  if (exportType) {
+    exportEvidence(exportType);
   }
 
   if (target.id === "closeDrawer" || target.id === "detailDrawer") {
