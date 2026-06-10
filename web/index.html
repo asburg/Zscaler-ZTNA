@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Zscaler ZTNA Simulation</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="panel intro">
+        <div>
+          <p class="eyebrow">Simulation-ready capstone prototype</p>
+          <h1>Zscaler ZTNA Access Decision Simulator</h1>
+          <p>
+            This browser prototype models how a ZPA-style policy engine can evaluate identity,
+            device posture, MFA, and application segment before granting private application access.
+          </p>
+        </div>
+        <div class="assumption">
+          <strong>Assumption</strong>
+          <span>No live Zscaler tenant is used. This is a simulated implementation plan for learning and capstone evidence.</span>
+        </div>
+      </section>
+
+      <section class="grid">
+        <form class="panel controls" id="accessForm">
+          <h2>Access Request</h2>
+
+          <label>
+            User Group
+            <select id="group">
+              <option>EDU-Students</option>
+              <option>EDU-Teachers</option>
+              <option>EDU-Academic-Admins</option>
+              <option>EDU-IT-Admins</option>
+              <option>EDU-Developers</option>
+              <option>EDU-Contractors</option>
+            </select>
+          </label>
+
+          <label>
+            Device Posture
+            <select id="posture">
+              <option value="P0">P0 - Browser + MFA</option>
+              <option value="P1">P1 - Compliant Device</option>
+              <option value="P2">P2 - Managed Device</option>
+              <option value="P3">P3 - Restricted Admin Device</option>
+            </select>
+          </label>
+
+          <label>
+            Private Application
+            <select id="app">
+              <option>Student Portal</option>
+              <option>LMS</option>
+              <option>Grade Management</option>
+              <option>Admin Dashboard</option>
+              <option>Internal API Dev</option>
+              <option>Contractor App</option>
+              <option>Student Records Database</option>
+            </select>
+          </label>
+
+          <label class="check">
+            <input id="mfa" type="checkbox" checked>
+            MFA completed
+          </label>
+
+          <button type="submit">Evaluate Request</button>
+        </form>
+
+        <section class="panel result" id="resultPanel">
+          <h2>Policy Decision</h2>
+          <div class="decision neutral" id="decision">Waiting for request</div>
+          <p id="reason">Choose a role, posture, and private application, then evaluate the request.</p>
+          <div class="path">
+            <span>User</span>
+            <span>Client Connector</span>
+            <span>IdP</span>
+            <span>ZPA Policy</span>
+            <span>Private App</span>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel">
+        <h2>Simulated Audit Log</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>User Group</th>
+              <th>Posture</th>
+              <th>Application</th>
+              <th>Decision</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody id="logBody">
+            <tr>
+              <td colspan="6">No requests yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

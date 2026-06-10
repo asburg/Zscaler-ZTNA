@@ -1,0 +1,19 @@
+{
+  "postureLevels": {
+    "P0": 0,
+    "P1": 1,
+    "P2": 2,
+    "P3": 3
+  },
+  "rules": [
+    {"group": "EDU-Students", "app": "Student Portal", "minPosture": "P0", "decision": "Allow"},
+    {"group": "EDU-Students", "app": "LMS", "minPosture": "P0", "decision": "Allow"},
+    {"group": "EDU-Teachers", "app": "LMS", "minPosture": "P1", "decision": "Allow"},
+    {"group": "EDU-Teachers", "app": "Grade Management", "minPosture": "P1", "decision": "Allow"},
+    {"group": "EDU-Academic-Admins", "app": "Admin Dashboard", "minPosture": "P2", "decision": "Allow"},
+    {"group": "EDU-IT-Admins", "app": "Admin Dashboard", "minPosture": "P2", "decision": "Allow"},
+    {"group": "EDU-Developers", "app": "Internal API Dev", "minPosture": "P1", "decision": "Allow"},
+    {"group": "EDU-Contractors", "app": "Contractor App", "minPosture": "P1", "decision": "Allow"}
+  ],
+  "criticalDenyApps": ["Student Records Database"]
+}
