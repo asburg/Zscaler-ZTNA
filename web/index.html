@@ -3,108 +3,199 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Zscaler ZTNA Simulation</title>
+    <title>Zscaler ZTNA Simulation Console</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <main class="app-shell">
-      <section class="panel intro">
-        <div>
-          <p class="eyebrow">Simulation-ready capstone prototype</p>
-          <h1>Zscaler ZTNA Access Decision Simulator</h1>
-          <p>
-            This browser prototype models how a ZPA-style policy engine can evaluate identity,
-            device posture, MFA, and application segment before granting private application access.
-          </p>
-        </div>
-        <div class="assumption">
-          <strong>Assumption</strong>
-          <span>No live Zscaler tenant is used. This is a simulated implementation plan for learning and capstone evidence.</span>
-        </div>
-      </section>
-
-      <section class="grid">
-        <form class="panel controls" id="accessForm">
-          <h2>Access Request</h2>
-
-          <label>
-            User Group
-            <select id="group">
-              <option>EDU-Students</option>
-              <option>EDU-Teachers</option>
-              <option>EDU-Academic-Admins</option>
-              <option>EDU-IT-Admins</option>
-              <option>EDU-Developers</option>
-              <option>EDU-Contractors</option>
-            </select>
-          </label>
-
-          <label>
-            Device Posture
-            <select id="posture">
-              <option value="P0">P0 - Browser + MFA</option>
-              <option value="P1">P1 - Compliant Device</option>
-              <option value="P2">P2 - Managed Device</option>
-              <option value="P3">P3 - Restricted Admin Device</option>
-            </select>
-          </label>
-
-          <label>
-            Private Application
-            <select id="app">
-              <option>Student Portal</option>
-              <option>LMS</option>
-              <option>Grade Management</option>
-              <option>Admin Dashboard</option>
-              <option>Internal API Dev</option>
-              <option>Contractor App</option>
-              <option>Student Records Database</option>
-            </select>
-          </label>
-
-          <label class="check">
-            <input id="mfa" type="checkbox" checked>
-            MFA completed
-          </label>
-
-          <button type="submit">Evaluate Request</button>
-        </form>
-
-        <section class="panel result" id="resultPanel">
-          <h2>Policy Decision</h2>
-          <div class="decision neutral" id="decision">Waiting for request</div>
-          <p id="reason">Choose a role, posture, and private application, then evaluate the request.</p>
-          <div class="path">
-            <span>User</span>
-            <span>Client Connector</span>
-            <span>IdP</span>
-            <span>ZPA Policy</span>
-            <span>Private App</span>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <span class="brand-mark">Z</span>
+          <div>
+            <strong>ZTNA Console</strong>
+            <small>Simulation Environment</small>
           </div>
-        </section>
-      </section>
+        </div>
+        <nav>
+          <a href="#dashboard" class="active">Dashboard</a>
+          <a href="#apps">Private Apps</a>
+          <a href="#request">Access Request</a>
+          <a href="#trace">Policy Trace</a>
+          <a href="#logs">Audit Logs</a>
+          <a href="#incident">Incident Response</a>
+        </nav>
+        <div class="tenant">
+          <span>Tenant Mode</span>
+          <strong>Simulated Lab</strong>
+          <small>No live Zscaler tenant connected</small>
+        </div>
+      </aside>
 
-      <section class="panel">
-        <h2>Simulated Audit Log</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Time</th>
-              <th>User Group</th>
-              <th>Posture</th>
-              <th>Application</th>
-              <th>Decision</th>
-              <th>Reason</th>
-            </tr>
-          </thead>
-          <tbody id="logBody">
-            <tr>
-              <td colspan="6">No requests yet.</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
-    </main>
+      <main class="workspace">
+        <header class="topbar" id="dashboard">
+          <div>
+            <p class="eyebrow">Education Technology Zero Trust</p>
+            <h1>Zscaler ZTNA Simulation Console</h1>
+            <p class="summary">
+              A realistic simulation of ZPA private application access, ZIA internet protection,
+              ZDX monitoring context, and Client Connector posture signals.
+            </p>
+          </div>
+          <div class="system-state">
+            <span class="dot online"></span>
+            <div>
+              <strong>Policy Engine Online</strong>
+              <small>Last sync: simulated realtime</small>
+            </div>
+          </div>
+        </header>
+
+        <section class="kpi-grid">
+          <article class="kpi">
+            <span>Protected Apps</span>
+            <strong id="protectedCount">7</strong>
+            <small>ZPA application segments</small>
+          </article>
+          <article class="kpi">
+            <span>Active Sessions</span>
+            <strong id="sessionCount">0</strong>
+            <small>Allowed requests in this demo</small>
+          </article>
+          <article class="kpi">
+            <span>Blocked Requests</span>
+            <strong id="blockedCount">0</strong>
+            <small>Denied by policy or posture</small>
+          </article>
+          <article class="kpi">
+            <span>Risk State</span>
+            <strong id="riskState">Normal</strong>
+            <small>Calculated from simulated logs</small>
+          </article>
+        </section>
+
+        <section class="two-column">
+          <section class="panel" id="request">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">ZPA Access Broker</p>
+                <h2>New Private App Request</h2>
+              </div>
+              <span class="badge">Deny by default</span>
+            </div>
+
+            <form class="request-form" id="accessForm">
+              <label>
+                Persona
+                <select id="persona"></select>
+              </label>
+
+              <label>
+                Device Posture
+                <select id="posture">
+                  <option value="P0">P0 - Browser access + MFA</option>
+                  <option value="P1">P1 - Compliant endpoint</option>
+                  <option value="P2">P2 - Managed secure endpoint</option>
+                  <option value="P3">P3 - Restricted admin workstation</option>
+                </select>
+              </label>
+
+              <label>
+                Private Application
+                <select id="app"></select>
+              </label>
+
+              <div class="form-row">
+                <label class="check">
+                  <input id="mfa" type="checkbox" checked>
+                  MFA verified
+                </label>
+                <label class="check">
+                  <input id="connector" type="checkbox" checked>
+                  Client Connector healthy
+                </label>
+              </div>
+
+              <label>
+                Location Risk
+                <select id="locationRisk">
+                  <option value="low">Known campus or home network</option>
+                  <option value="medium">New city or shared network</option>
+                  <option value="high">Impossible travel or risky location</option>
+                </select>
+              </label>
+
+              <button type="submit">Evaluate Access</button>
+            </form>
+          </section>
+
+          <section class="panel decision-panel" id="trace">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">Decision Detail</p>
+                <h2>Policy Trace</h2>
+              </div>
+              <span class="decision neutral" id="decision">Waiting</span>
+            </div>
+            <p id="reason" class="decision-reason">
+              Select a persona, device posture, and private application to simulate a ZPA decision.
+            </p>
+            <div class="trace-list" id="traceList"></div>
+          </section>
+        </section>
+
+        <section class="panel" id="apps">
+          <div class="section-title">
+            <div>
+              <p class="eyebrow">ZPA Application Segmentation</p>
+              <h2>Protected Private Apps</h2>
+            </div>
+            <span class="badge">Internal apps hidden from internet</span>
+          </div>
+          <div class="app-grid" id="appGrid"></div>
+        </section>
+
+        <section class="two-column">
+          <section class="panel" id="logs">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">Simulated Evidence</p>
+                <h2>Audit Log Stream</h2>
+              </div>
+              <button class="secondary" id="exportLogs" type="button">Export CSV</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>App</th>
+                    <th>Policy</th>
+                    <th>Decision</th>
+                  </tr>
+                </thead>
+                <tbody id="logBody">
+                  <tr>
+                    <td colspan="5">No access decisions yet.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel" id="incident">
+            <div class="section-title">
+              <div>
+                <p class="eyebrow">Response Workflow</p>
+                <h2>Incident Response</h2>
+              </div>
+              <span class="badge danger" id="incidentLevel">No active incident</span>
+            </div>
+            <div class="incident-actions" id="incidentActions"></div>
+          </section>
+        </section>
+      </main>
+    </div>
 
     <script src="app.js"></script>
   </body>

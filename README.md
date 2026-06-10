@@ -26,19 +26,21 @@ Access to Zscaler ZIA, ZPA, ZDX, and Zscaler Client Connector normally requires 
 | `web/` | Browser-based ZTNA simulation prototype |
 | `data/` | Structured policy and scenario data used by the prototype |
 
-## Demo Prototype
+## ZTNA Simulation Console
 
 The web prototype is designed to run through GitHub Pages:
 
 `https://asburg.github.io/Zscaler-ZTNA/`
 
-For local testing, open `web/index.html` in a browser. The prototype simulates:
+For local testing, open `web/index.html` in a browser. The prototype now behaves like a lightweight ZTNA security console. It simulates:
 
 1. A user selecting a role and device posture.
 2. A private application request.
 3. A ZPA-like policy decision.
-4. Allow or deny result.
-5. Audit log entry that can be used as simulated evidence.
+4. Identity, MFA, Client Connector, risk, posture, and application-segment checks.
+5. Allow or deny result with policy trace.
+6. Audit log entries that can be used as simulated evidence.
+7. Incident response recommendations for denied or suspicious access.
 
 ## Main Use Cases
 
