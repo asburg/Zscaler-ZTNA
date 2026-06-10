@@ -28,7 +28,11 @@ Access to Zscaler ZIA, ZPA, ZDX, and Zscaler Client Connector normally requires 
 
 ## Demo Prototype
 
-Open `web/index.html` in a browser. The prototype simulates:
+The web prototype is designed to run through GitHub Pages:
+
+`https://asburg.github.io/Zscaler-ZTNA/`
+
+For local testing, open `web/index.html` in a browser. The prototype simulates:
 
 1. A user selecting a role and device posture.
 2. A private application request.
