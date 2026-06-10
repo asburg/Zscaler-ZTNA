@@ -1,184 +1,269 @@
-const postureRank = { P0: 0, P1: 1, P2: 2, P3: 3 };
-
-const personas = [
-  { id: "student", name: "Alya Putri", group: "EDU-Students", device: "Personal laptop" },
-  { id: "teacher", name: "Bima Rahman", group: "EDU-Teachers", device: "Managed faculty laptop" },
-  { id: "academic", name: "Citra Admin", group: "EDU-Academic-Admins", device: "Managed staff laptop" },
-  { id: "itadmin", name: "Dimas IT", group: "EDU-IT-Admins", device: "Privileged admin workstation" },
-  { id: "developer", name: "Eka Developer", group: "EDU-Developers", device: "Developer workstation" },
-  { id: "contractor", name: "Fajar Vendor", group: "EDU-Contractors", device: "Contractor endpoint" },
-];
-
-const apps = [
-  { name: "Student Portal", segment: "SEG-MED-STUDENT-PORTAL", connector: "CG-EDU-WEB", sensitivity: "Medium", port: "443" },
-  { name: "LMS", segment: "SEG-MED-LMS", connector: "CG-EDU-WEB", sensitivity: "Medium", port: "443" },
-  { name: "Grade Management", segment: "SEG-HIGH-GRADE-MGMT", connector: "CG-EDU-ADMIN", sensitivity: "High", port: "443" },
-  { name: "Admin Dashboard", segment: "SEG-HIGH-ADMIN", connector: "CG-EDU-ADMIN", sensitivity: "High", port: "443" },
-  { name: "Internal API Dev", segment: "SEG-HIGH-API-DEV", connector: "CG-EDU-API", sensitivity: "High", port: "443" },
-  { name: "Contractor App", segment: "SEG-HIGH-CONTRACTOR", connector: "CG-EDU-CONTRACTOR", sensitivity: "Medium-High", port: "443" },
-  { name: "Student Records Database", segment: "SEG-CRITICAL-DB", connector: "Restricted backend path", sensitivity: "Critical", port: "5432" },
-];
-
-const allowRules = [
-  { id: "ZPA-001", group: "EDU-Students", app: "Student Portal", minPosture: "P0" },
-  { id: "ZPA-002", group: "EDU-Students", app: "LMS", minPosture: "P0" },
-  { id: "ZPA-005", group: "EDU-Teachers", app: "LMS", minPosture: "P1" },
-  { id: "ZPA-006", group: "EDU-Teachers", app: "Grade Management", minPosture: "P1" },
-  { id: "ZPA-008", group: "EDU-Academic-Admins", app: "Admin Dashboard", minPosture: "P2" },
-  { id: "ZPA-010", group: "EDU-IT-Admins", app: "Admin Dashboard", minPosture: "P2" },
-  { id: "ZPA-011", group: "EDU-Developers", app: "Internal API Dev", minPosture: "P1" },
-  { id: "ZPA-013", group: "EDU-Contractors", app: "Contractor App", minPosture: "P1" },
-];
+const rank = { P0: 0, P1: 1, P2: 2, P3: 3 };
 
 const state = {
+  users: [
+    { id: "u-student", name: "Alya Putri", group: "EDU-Students" },
+    { id: "u-teacher", name: "Bima Rahman", group: "EDU-Teachers" },
+    { id: "u-academic", name: "Citra Admin", group: "EDU-Academic-Admins" },
+    { id: "u-it", name: "Dimas IT", group: "EDU-IT-Admins" },
+    { id: "u-dev", name: "Eka Developer", group: "EDU-Developers" },
+    { id: "u-vendor", name: "Fajar Vendor", group: "EDU-Contractors" },
+  ],
+  devices: [
+    { id: "d-student", userId: "u-student", name: "Alya-Personal-Laptop", posture: "P0", health: "Healthy" },
+    { id: "d-teacher", userId: "u-teacher", name: "Bima-Faculty-Laptop", posture: "P1", health: "Healthy" },
+    { id: "d-academic", userId: "u-academic", name: "Citra-Managed-Laptop", posture: "P2", health: "Healthy" },
+    { id: "d-it", userId: "u-it", name: "Dimas-Admin-Workstation", posture: "P3", health: "Healthy" },
+    { id: "d-dev", userId: "u-dev", name: "Eka-Dev-Workstation", posture: "P1", health: "Healthy" },
+    { id: "d-vendor", userId: "u-vendor", name: "Fajar-Contractor-Endpoint", posture: "P1", health: "Healthy" },
+  ],
+  apps: [
+    { id: "app-student", name: "Student Portal", segment: "SEG-MED-STUDENT-PORTAL", connector: "CG-EDU-WEB", sensitivity: "Medium", port: "443", health: "Available" },
+    { id: "app-lms", name: "LMS", segment: "SEG-MED-LMS", connector: "CG-EDU-WEB", sensitivity: "Medium", port: "443", health: "Available" },
+    { id: "app-grade", name: "Grade Management", segment: "SEG-HIGH-GRADE-MGMT", connector: "CG-EDU-ADMIN", sensitivity: "High", port: "443", health: "Available" },
+    { id: "app-admin", name: "Admin Dashboard", segment: "SEG-HIGH-ADMIN", connector: "CG-EDU-ADMIN", sensitivity: "High", port: "443", health: "Available" },
+    { id: "app-api", name: "Internal API Dev", segment: "SEG-HIGH-API-DEV", connector: "CG-EDU-API", sensitivity: "High", port: "443", health: "Available" },
+    { id: "app-contractor", name: "Contractor App", segment: "SEG-HIGH-CONTRACTOR", connector: "CG-EDU-CONTRACTOR", sensitivity: "Medium-High", port: "443", health: "Available" },
+    { id: "app-db", name: "Student Records Database", segment: "SEG-CRITICAL-DB", connector: "Restricted backend path", sensitivity: "Critical", port: "5432", health: "Protected" },
+  ],
+  policies: [
+    { id: "ZPA-001", group: "EDU-Students", appId: "app-student", minPosture: "P0" },
+    { id: "ZPA-002", group: "EDU-Students", appId: "app-lms", minPosture: "P0" },
+    { id: "ZPA-005", group: "EDU-Teachers", appId: "app-lms", minPosture: "P1" },
+    { id: "ZPA-006", group: "EDU-Teachers", appId: "app-grade", minPosture: "P1" },
+    { id: "ZPA-008", group: "EDU-Academic-Admins", appId: "app-admin", minPosture: "P2" },
+    { id: "ZPA-010", group: "EDU-IT-Admins", appId: "app-admin", minPosture: "P2" },
+    { id: "ZPA-011", group: "EDU-Developers", appId: "app-api", minPosture: "P1" },
+    { id: "ZPA-013", group: "EDU-Contractors", appId: "app-contractor", minPosture: "P1" },
+  ],
+  sessions: [],
   logs: [],
-  allowed: 0,
-  denied: 0,
+  cases: [],
 };
 
-const personaInput = document.querySelector("#persona");
-const appInput = document.querySelector("#app");
-const form = document.querySelector("#accessForm");
-const decision = document.querySelector("#decision");
-const reason = document.querySelector("#reason");
-const traceList = document.querySelector("#traceList");
-const logBody = document.querySelector("#logBody");
-const appGrid = document.querySelector("#appGrid");
-const sessionCount = document.querySelector("#sessionCount");
-const blockedCount = document.querySelector("#blockedCount");
-const riskState = document.querySelector("#riskState");
-const incidentLevel = document.querySelector("#incidentLevel");
-const incidentActions = document.querySelector("#incidentActions");
-const exportLogs = document.querySelector("#exportLogs");
+const els = {
+  userSelect: document.querySelector("#userSelect"),
+  appSelect: document.querySelector("#appSelect"),
+  deviceSelect: document.querySelector("#deviceSelect"),
+  riskSelect: document.querySelector("#riskSelect"),
+  mfaToggle: document.querySelector("#mfaToggle"),
+  connectorToggle: document.querySelector("#connectorToggle"),
+  accessForm: document.querySelector("#accessForm"),
+  decisionBadge: document.querySelector("#decisionBadge"),
+  decisionCopy: document.querySelector("#decisionCopy"),
+  traceList: document.querySelector("#traceList"),
+  appCards: document.querySelector("#appCards"),
+  policyBody: document.querySelector("#policyBody"),
+  policyCount: document.querySelector("#policyCount"),
+  ruleForm: document.querySelector("#ruleForm"),
+  ruleGroup: document.querySelector("#ruleGroup"),
+  ruleApp: document.querySelector("#ruleApp"),
+  rulePosture: document.querySelector("#rulePosture"),
+  sessionBody: document.querySelector("#sessionBody"),
+  deviceList: document.querySelector("#deviceList"),
+  logBody: document.querySelector("#logBody"),
+  logFilter: document.querySelector("#logFilter"),
+  responseList: document.querySelector("#responseList"),
+  responseState: document.querySelector("#responseState"),
+  kpiApps: document.querySelector("#kpiApps"),
+  kpiSessions: document.querySelector("#kpiSessions"),
+  kpiBlocked: document.querySelector("#kpiBlocked"),
+  kpiRisk: document.querySelector("#kpiRisk"),
+};
 
-function init() {
-  personaInput.innerHTML = personas
-    .map((persona) => `<option value="${persona.id}">${persona.name} - ${persona.group}</option>`)
-    .join("");
-
-  appInput.innerHTML = apps.map((app) => `<option>${app.name}</option>`).join("");
-
-  appGrid.innerHTML = apps
-    .map(
-      (app) => `
-        <article class="app-card">
-          <strong>${app.name}</strong>
-          <span>${app.segment}</span>
-          <div class="app-meta">
-            <em class="pill">${app.sensitivity}</em>
-            <em class="pill">${app.connector}</em>
-            <em class="pill">TCP ${app.port}</em>
-          </div>
-        </article>
-      `,
-    )
-    .join("");
-
-  renderTrace([
-    { state: "warn", title: "No request evaluated", detail: "Submit a private application request to generate policy evidence." },
-  ]);
-  renderIncident("No active incident", [
-    ["Ready state", "Incident actions will appear when suspicious or denied access events are generated."],
-  ]);
+function byId(list, id) {
+  return list.find((item) => item.id === id);
 }
 
-function evaluateAccess(request) {
-  const selectedApp = apps.find((item) => item.name === request.app);
-  const rule = allowRules.find((item) => item.group === request.persona.group && item.app === request.app);
-  const trace = [];
+function now() {
+  return new Date().toLocaleTimeString();
+}
 
-  trace.push({
-    state: "pass",
-    title: "Identity resolved",
-    detail: `${request.persona.name} mapped to ${request.persona.group} through simulated IdP.`,
-  });
+function fillSelects() {
+  els.userSelect.innerHTML = state.users.map((user) => `<option value="${user.id}">${user.name} - ${user.group}</option>`).join("");
+  els.appSelect.innerHTML = state.apps.map((app) => `<option value="${app.id}">${app.name}</option>`).join("");
+  els.ruleGroup.innerHTML = [...new Set(state.users.map((user) => user.group))]
+    .map((group) => `<option>${group}</option>`)
+    .join("");
+  els.ruleApp.innerHTML = state.apps.map((app) => `<option value="${app.id}">${app.name}</option>`).join("");
+  syncDeviceSelect();
+}
+
+function syncDeviceSelect() {
+  const userId = els.userSelect.value;
+  const devices = state.devices.filter((device) => device.userId === userId);
+  els.deviceSelect.innerHTML = devices.map((device) => `<option value="${device.id}">${device.name} - ${device.posture}</option>`).join("");
+}
+
+function evaluate(request) {
+  const trace = [];
+  const app = byId(state.apps, request.appId);
+  const user = byId(state.users, request.userId);
+  const device = byId(state.devices, request.deviceId);
+  const policy = state.policies.find((rule) => rule.group === user.group && rule.appId === app.id);
+
+  trace.push(["pass", "Identity resolved", `${user.name} is a member of ${user.group}.`]);
 
   if (!request.mfa) {
-    trace.push({ state: "fail", title: "MFA verification failed", detail: "ZPA policy requires MFA before private app access." });
-    return deny("ZPA-MFA-DENY", "MFA is required for private application access.", trace, selectedApp);
+    trace.push(["fail", "MFA required", "The identity provider did not return a verified MFA claim."]);
+    return denied("ZPA-MFA-DENY", "MFA verification failed.", trace, app);
   }
-  trace.push({ state: "pass", title: "MFA verified", detail: "Authentication context is acceptable for policy evaluation." });
+  trace.push(["pass", "MFA verified", "Authentication requirement satisfied."]);
 
-  if (!request.connector) {
-    trace.push({ state: "fail", title: "Client Connector unhealthy", detail: "Endpoint signal is missing or unhealthy." });
-    return deny("ZPA-POSTURE-DENY", "Client Connector health check failed.", trace, selectedApp);
+  if (!request.connector || device.health !== "Healthy") {
+    trace.push(["fail", "Endpoint context failed", `${device.name} is not reporting a healthy Client Connector state.`]);
+    return denied("ZPA-CONNECTOR-DENY", "Client Connector or endpoint health check failed.", trace, app);
   }
-  trace.push({ state: "pass", title: "Client Connector healthy", detail: `${request.persona.device} is sending endpoint context.` });
+  trace.push(["pass", "Client Connector healthy", `${device.name} reports posture ${device.posture}.`]);
 
-  if (request.locationRisk === "high") {
-    trace.push({ state: "fail", title: "High location risk", detail: "Impossible travel or risky location requires containment." });
-    return deny("ZPA-RISK-DENY", "High-risk location blocked before application connection.", trace, selectedApp);
+  if (request.risk === "high") {
+    trace.push(["fail", "Risk policy blocked", "High-risk network context is not allowed for private applications."]);
+    return denied("ZPA-RISK-DENY", "Request blocked by network risk policy.", trace, app);
   }
+  trace.push([request.risk === "medium" ? "warn" : "pass", "Network risk evaluated", `${request.risk} risk request accepted for policy evaluation.`]);
 
-  if (request.locationRisk === "medium") {
-    trace.push({ state: "warn", title: "Medium location risk", detail: "Request can continue, but audit priority is increased." });
-  } else {
-    trace.push({ state: "pass", title: "Location risk acceptable", detail: "Known campus or home network context." });
-  }
-
-  if (request.app === "Student Records Database") {
-    trace.push({ state: "fail", title: "Critical asset protected", detail: "Database is not published as a normal human-user application segment." });
-    return deny("ZPA-DB-DENY", "Critical database access is denied for all normal user personas.", trace, selectedApp);
+  if (app.sensitivity === "Critical") {
+    trace.push(["fail", "Critical asset restricted", "Critical database segment is not available for user-launched sessions."]);
+    return denied("ZPA-DB-DENY", "Critical application segment blocked.", trace, app);
   }
 
-  if (!rule) {
-    trace.push({ state: "fail", title: "No allow rule matched", detail: `${request.persona.group} has no approved policy for ${request.app}.` });
-    return deny("ZPA-DEFAULT-DENY", "No matching allow policy exists for this identity and application segment.", trace, selectedApp);
+  if (!policy) {
+    trace.push(["fail", "Default deny", `${user.group} has no allow rule for ${app.name}.`]);
+    return denied("ZPA-DEFAULT-DENY", "No matching allow rule found.", trace, app);
   }
 
-  trace.push({ state: "pass", title: "Application segment matched", detail: `${selectedApp.segment} through ${selectedApp.connector}.` });
+  trace.push(["pass", "Application segment matched", `${app.segment} via ${app.connector}.`]);
 
-  if (postureRank[request.posture] < postureRank[rule.minPosture]) {
-    trace.push({ state: "fail", title: "Device posture insufficient", detail: `${request.app} requires ${rule.minPosture} or higher posture.` });
-    return deny("ZPA-POSTURE-DENY", `Device posture ${request.posture} is below required ${rule.minPosture}.`, trace, selectedApp);
+  if (rank[device.posture] < rank[policy.minPosture]) {
+    trace.push(["fail", "Posture insufficient", `${app.name} requires ${policy.minPosture}; device is ${device.posture}.`]);
+    return denied("ZPA-POSTURE-DENY", "Device posture does not meet policy.", trace, app);
   }
 
-  trace.push({ state: "pass", title: "Least privilege rule matched", detail: `${rule.id} allows ${request.persona.group} to reach ${request.app}.` });
+  trace.push(["pass", "Least privilege policy matched", `${policy.id} permits ${user.group} to open ${app.name}.`]);
 
   return {
     decision: "Allow",
-    policy: rule.id,
-    reason: `Access brokered to ${request.app}; private network remains hidden.`,
-    trace,
-    app: selectedApp,
-  };
-}
-
-function deny(policy, message, trace, app) {
-  return {
-    decision: "Deny",
-    policy,
-    reason: message,
+    policy: policy.id,
+    reason: `${app.name} opened through ${app.connector}.`,
     trace,
     app,
   };
 }
 
-function renderTrace(items) {
-  traceList.innerHTML = items
+function denied(policy, reason, trace, app) {
+  return { decision: "Deny", policy, reason, trace, app };
+}
+
+function renderTrace(trace) {
+  els.traceList.innerHTML = trace
     .map(
-      (item) => `
-        <div class="trace-item ${item.state}">
-          <span class="trace-icon">${item.state === "pass" ? "✓" : item.state === "warn" ? "!" : "×"}</span>
+      ([stateName, title, detail]) => `
+        <div class="trace-item ${stateName}">
+          <span class="trace-icon">${stateName === "pass" ? "OK" : stateName === "warn" ? "!" : "X"}</span>
           <div>
-            <strong>${item.title}</strong>
-            <small>${item.detail}</small>
+            <strong>${title}</strong>
+            <small>${detail}</small>
           </div>
-          <span class="pill">${item.state}</span>
+          <span class="pill">${stateName}</span>
         </div>
       `,
     )
     .join("");
 }
 
-function renderLogs() {
-  if (!state.logs.length) {
-    logBody.innerHTML = '<tr><td colspan="5">No access decisions yet.</td></tr>';
+function renderApps() {
+  els.appCards.innerHTML = state.apps
+    .map(
+      (app) => `
+        <article class="app-card">
+          <header>
+            <div>
+              <strong>${app.name}</strong>
+              <small>${app.segment}</small>
+            </div>
+            <span class="pill">${app.health}</span>
+          </header>
+          <div class="meta-row">
+            <span class="pill">${app.sensitivity}</span>
+            <span class="pill">${app.connector}</span>
+            <span class="pill">TCP ${app.port}</span>
+          </div>
+          <div class="app-actions">
+            <button type="button" data-launch="${app.id}">Launch</button>
+            <button class="ghost" type="button" data-inspect="${app.id}">Inspect</button>
+          </div>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function renderPolicies() {
+  els.policyCount.textContent = `${state.policies.length} rules`;
+  els.policyBody.innerHTML = state.policies
+    .map((rule) => {
+      const app = byId(state.apps, rule.appId);
+      return `
+        <tr>
+          <td>${rule.id}</td>
+          <td>${rule.group}</td>
+          <td>${app.name}</td>
+          <td>${rule.minPosture}+</td>
+          <td><button class="ghost" type="button" data-delete-policy="${rule.id}">Delete</button></td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+function renderSessions() {
+  if (!state.sessions.length) {
+    els.sessionBody.innerHTML = '<tr><td colspan="5" class="empty">No active sessions.</td></tr>';
     return;
   }
+  els.sessionBody.innerHTML = state.sessions
+    .map(
+      (session) => `
+        <tr>
+          <td>${session.user}</td>
+          <td>${session.app}</td>
+          <td>${session.connector}</td>
+          <td>${session.duration}</td>
+          <td><button class="danger" type="button" data-revoke="${session.id}">Revoke</button></td>
+        </tr>
+      `,
+    )
+    .join("");
+}
 
-  logBody.innerHTML = state.logs
-    .slice(0, 12)
+function renderDevices() {
+  els.deviceList.innerHTML = state.devices
+    .map((device) => {
+      const user = byId(state.users, device.userId);
+      return `
+        <div class="device-item">
+          <div>
+            <strong>${device.name}</strong>
+            <small>${user.name} - ${device.posture} - ${device.health}</small>
+          </div>
+          <select data-device-posture="${device.id}">
+            ${Object.keys(rank).map((level) => `<option ${level === device.posture ? "selected" : ""}>${level}</option>`).join("")}
+          </select>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function renderLogs() {
+  const filter = els.logFilter.value;
+  const logs = state.logs.filter((log) => filter === "all" || log.decision === filter);
+  if (!logs.length) {
+    els.logBody.innerHTML = '<tr><td colspan="5" class="empty">No matching logs.</td></tr>';
+    return;
+  }
+  els.logBody.innerHTML = logs
+    .slice(0, 30)
     .map(
       (log) => `
         <tr>
@@ -193,109 +278,256 @@ function renderLogs() {
     .join("");
 }
 
-function renderIncident(label, actions) {
-  incidentLevel.textContent = label;
-  incidentActions.innerHTML = actions
+function renderCases() {
+  els.responseState.textContent = state.cases.length ? `${state.cases.length} open case` : "No open case";
+  if (!state.cases.length) {
+    els.responseList.innerHTML = '<div class="response-item"><strong>Queue clear</strong><small>No containment action is currently required.</small></div>';
+    return;
+  }
+  els.responseList.innerHTML = state.cases
     .map(
-      ([title, detail]) => `
-        <div class="action">
-          <strong>${title}</strong>
-          <small>${detail}</small>
+      (item) => `
+        <div class="response-item">
+          <strong>${item.title}</strong>
+          <small>${item.detail}</small>
+          <div class="response-actions">
+            <button type="button" data-contain="${item.id}">Apply Containment</button>
+            <button class="ghost" type="button" data-close-case="${item.id}">Close</button>
+          </div>
         </div>
       `,
     )
     .join("");
 }
 
-function updateKpis(result) {
-  if (result.decision === "Allow") {
-    state.allowed += 1;
-  } else {
-    state.denied += 1;
-  }
-
-  sessionCount.textContent = String(state.allowed);
-  blockedCount.textContent = String(state.denied);
-
-  const highRisk = state.logs.filter((log) => log.decision === "Deny").length >= 3 || result.policy.includes("DB");
-  riskState.textContent = highRisk ? "Elevated" : state.denied ? "Watch" : "Normal";
+function renderKpis() {
+  const deniedCount = state.logs.filter((log) => log.decision === "Deny").length;
+  els.kpiApps.textContent = String(state.apps.length);
+  els.kpiSessions.textContent = String(state.sessions.length);
+  els.kpiBlocked.textContent = String(deniedCount);
+  els.kpiRisk.textContent = state.cases.length ? "Elevated" : deniedCount ? "Watch" : "Normal";
 }
 
-function updateIncident(result, request) {
-  if (result.decision === "Allow") {
-    renderIncident("No active incident", [
-      ["Monitor session", `Allow event for ${request.persona.name} should remain visible in ZPA audit logs.`],
-      ["Validate scope", `${request.app} is reachable only as an application segment, not as broad network access.`],
-    ]);
-    return;
-  }
-
-  const actions = [
-    ["Preserve evidence", `Export ZPA event ${result.policy}, IdP sign-in context, and endpoint posture status.`],
-    ["Contain access", "Revoke active session or apply emergency deny rule if repeated attempts continue."],
-    ["Review identity", `Check ${request.persona.group} membership and recent IdP changes.`],
-  ];
-
-  if (result.policy.includes("DB") || request.app.includes("Admin")) {
-    actions.push(["Escalate severity", "Notify application owner because the requested application is sensitive or critical."]);
-  }
-
-  renderIncident("Incident review required", actions);
+function renderAll() {
+  renderApps();
+  renderPolicies();
+  renderSessions();
+  renderDevices();
+  renderLogs();
+  renderCases();
+  renderKpis();
 }
 
-function toCsv(logs) {
-  const header = "time,user,group,posture,app,policy,decision,reason";
-  const rows = logs.map((log) =>
-    [log.time, log.user, log.group, log.posture, log.app, log.policy, log.decision, log.reason]
-      .map((value) => `"${String(value).replaceAll('"', '""')}"`)
-      .join(","),
-  );
-  return [header, ...rows].join("\n");
-}
-
-form.addEventListener("submit", (event) => {
-  event.preventDefault();
-
-  const persona = personas.find((item) => item.id === personaInput.value);
-  const request = {
-    persona,
-    posture: document.querySelector("#posture").value,
-    app: appInput.value,
-    mfa: document.querySelector("#mfa").checked,
-    connector: document.querySelector("#connector").checked,
-    locationRisk: document.querySelector("#locationRisk").value,
-  };
-
-  const result = evaluateAccess(request);
-  decision.textContent = result.decision;
-  decision.className = `decision ${result.decision.toLowerCase()}`;
-  reason.textContent = result.reason;
-  renderTrace(result.trace);
-
+function addLog({ user, app, result, device }) {
   state.logs.unshift({
-    time: new Date().toLocaleTimeString(),
-    user: request.persona.name,
-    group: request.persona.group,
-    posture: request.posture,
-    app: request.app,
+    time: now(),
+    user: user.name,
+    group: user.group,
+    app: app.name,
+    device: device.name,
     policy: result.policy,
     decision: result.decision,
     reason: result.reason,
   });
+}
 
-  updateKpis(result);
-  updateIncident(result, request);
-  renderLogs();
-});
+function addCase(user, app, result) {
+  if (result.decision !== "Deny") return;
+  state.cases.unshift({
+    id: `case-${Date.now()}`,
+    title: `${result.policy}: ${user.name} blocked from ${app.name}`,
+    detail: `${result.reason} Review identity group, posture, connector health, and application segment policy.`,
+  });
+}
 
-exportLogs.addEventListener("click", () => {
-  const blob = new Blob([toCsv(state.logs)], { type: "text/csv" });
+function openSession(user, app, result) {
+  if (result.decision !== "Allow") return;
+  state.sessions.unshift({
+    id: `sess-${Date.now()}`,
+    user: user.name,
+    app: app.name,
+    connector: app.connector,
+    duration: "00:00",
+  });
+}
+
+function submitAccess(appIdOverride) {
+  const request = {
+    userId: els.userSelect.value,
+    appId: appIdOverride || els.appSelect.value,
+    deviceId: els.deviceSelect.value,
+    risk: els.riskSelect.value,
+    mfa: els.mfaToggle.checked,
+    connector: els.connectorToggle.checked,
+  };
+  const user = byId(state.users, request.userId);
+  const app = byId(state.apps, request.appId);
+  const device = byId(state.devices, request.deviceId);
+  const result = evaluate(request);
+
+  els.decisionBadge.textContent = result.decision;
+  els.decisionBadge.className = `decision ${result.decision.toLowerCase()}`;
+  els.decisionCopy.textContent = result.reason;
+  renderTrace(result.trace);
+
+  addLog({ user, app, result, device });
+  addCase(user, app, result);
+  openSession(user, app, result);
+  renderAll();
+}
+
+function exportCsv() {
+  const header = "time,user,group,device,app,policy,decision,reason";
+  const rows = state.logs.map((log) =>
+    [log.time, log.user, log.group, log.device, log.app, log.policy, log.decision, log.reason]
+      .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+      .join(","),
+  );
+  const blob = new Blob([[header, ...rows].join("\n")], { type: "text/csv" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "ztna-simulated-audit-log.csv";
+  link.download = "secure-access-audit-log.csv";
   link.click();
   URL.revokeObjectURL(url);
+}
+
+els.userSelect.addEventListener("change", syncDeviceSelect);
+els.accessForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  submitAccess();
 });
 
-init();
+els.ruleForm.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const id = `ZPA-${String(state.policies.length + 101).padStart(3, "0")}`;
+  state.policies.push({
+    id,
+    group: els.ruleGroup.value,
+    appId: els.ruleApp.value,
+    minPosture: els.rulePosture.value,
+  });
+  state.logs.unshift({
+    time: now(),
+    user: "Policy Admin",
+    group: "System",
+    device: "Console",
+    app: byId(state.apps, els.ruleApp.value).name,
+    policy: id,
+    decision: "Policy Update",
+    reason: `Allow rule created for ${els.ruleGroup.value}.`,
+  });
+  renderAll();
+});
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const launchApp = target.dataset.launch;
+  if (launchApp) {
+    els.appSelect.value = launchApp;
+    submitAccess(launchApp);
+  }
+
+  const inspectApp = target.dataset.inspect;
+  if (inspectApp) {
+    const app = byId(state.apps, inspectApp);
+    els.decisionBadge.textContent = "Inspect";
+    els.decisionBadge.className = "decision waiting";
+    els.decisionCopy.textContent = `${app.name}: ${app.segment}, ${app.connector}, TCP ${app.port}, ${app.sensitivity} sensitivity.`;
+    renderTrace([
+      ["pass", "Application segment", app.segment],
+      ["pass", "Connector group", app.connector],
+      ["pass", "Health", app.health],
+    ]);
+  }
+
+  const policyId = target.dataset.deletePolicy;
+  if (policyId) {
+    state.policies = state.policies.filter((rule) => rule.id !== policyId);
+    renderAll();
+  }
+
+  const sessionId = target.dataset.revoke;
+  if (sessionId) {
+    const session = state.sessions.find((item) => item.id === sessionId);
+    state.sessions = state.sessions.filter((item) => item.id !== sessionId);
+    state.logs.unshift({
+      time: now(),
+      user: "Security Admin",
+      group: "System",
+      device: "Console",
+      app: session ? session.app : "Unknown",
+      policy: "SESSION-REVOKE",
+      decision: "Revoked",
+      reason: "Active private application session terminated.",
+    });
+    renderAll();
+  }
+
+  if (target.id === "revokeAll") {
+    state.sessions = [];
+    renderAll();
+  }
+
+  if (target.id === "refreshApps") {
+    state.apps = state.apps.map((app) => ({ ...app, health: app.health === "Protected" ? "Protected" : "Available" }));
+    renderAll();
+  }
+
+  const containId = target.dataset.contain;
+  if (containId) {
+    const item = state.cases.find((entry) => entry.id === containId);
+    state.logs.unshift({
+      time: now(),
+      user: "Incident Responder",
+      group: "Security",
+      device: "Console",
+      app: item ? item.title : "Response queue",
+      policy: "CONTAINMENT",
+      decision: "Applied",
+      reason: "Emergency deny, session revocation, and evidence preservation actions recorded.",
+    });
+    state.sessions = [];
+    renderAll();
+  }
+
+  const closeCaseId = target.dataset.closeCase;
+  if (closeCaseId) {
+    state.cases = state.cases.filter((item) => item.id !== closeCaseId);
+    renderAll();
+  }
+
+  if (target.id === "exportLogs") {
+    exportCsv();
+  }
+});
+
+document.addEventListener("change", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLSelectElement)) return;
+  const deviceId = target.dataset.devicePosture;
+  if (deviceId) {
+    const device = byId(state.devices, deviceId);
+    device.posture = target.value;
+    state.logs.unshift({
+      time: now(),
+      user: "Device Posture",
+      group: "System",
+      device: device.name,
+      app: "Client Connector",
+      policy: "POSTURE-UPDATE",
+      decision: "Updated",
+      reason: `${device.name} posture changed to ${device.posture}.`,
+    });
+    syncDeviceSelect();
+    renderAll();
+  }
+});
+
+els.logFilter.addEventListener("change", renderLogs);
+
+fillSelects();
+renderTrace([["pass", "Control plane ready", "Identity, posture, policy, application, and response modules are available."]]);
+renderAll();
