@@ -26,6 +26,24 @@ const state = {
     { id: "app-contractor", name: "Contractor App", segment: "SEG-HIGH-CONTRACTOR", connector: "CG-EDU-CONTRACTOR", sensitivity: "Medium-High", port: "443", health: "Available" },
     { id: "app-db", name: "Student Records Database", segment: "SEG-CRITICAL-DB", connector: "Restricted backend path", sensitivity: "Critical", port: "5432", health: "Protected" },
   ],
+  connectors: [
+    { id: "con-web", group: "CG-EDU-WEB", site: "Internal Web Subnet", status: "Healthy", heartbeat: "12 sec ago", apps: ["Student Portal", "LMS"], cpu: "18%", latency: "22 ms" },
+    { id: "con-admin", group: "CG-EDU-ADMIN", site: "Restricted Admin Subnet", status: "Healthy", heartbeat: "18 sec ago", apps: ["Grade Management", "Admin Dashboard"], cpu: "24%", latency: "31 ms" },
+    { id: "con-api", group: "CG-EDU-API", site: "Developer API Subnet", status: "Healthy", heartbeat: "15 sec ago", apps: ["Internal API Dev"], cpu: "16%", latency: "28 ms" },
+    { id: "con-contractor", group: "CG-EDU-CONTRACTOR", site: "Project App Subnet", status: "Healthy", heartbeat: "21 sec ago", apps: ["Contractor App"], cpu: "12%", latency: "34 ms" },
+  ],
+  zdx: [
+    { user: "Alya Putri", app: "Student Portal", score: 92, latency: "38 ms", device: "Good", path: "Good" },
+    { user: "Bima Rahman", app: "LMS", score: 88, latency: "46 ms", device: "Good", path: "Fair" },
+    { user: "Citra Admin", app: "Admin Dashboard", score: 81, latency: "59 ms", device: "Good", path: "Fair" },
+    { user: "Fajar Vendor", app: "Contractor App", score: 76, latency: "71 ms", device: "Fair", path: "Fair" },
+  ],
+  ziaEvents: [
+    { time: "09:41:22", user: "Alya Putri", url: "hxxps://credential-check.example", category: "Phishing", action: "Blocked" },
+    { time: "10:03:10", user: "Bima Rahman", url: "hxxps://course-media.example", category: "Policy", action: "Allowed" },
+    { time: "10:18:49", user: "Eka Developer", url: "hxxps://package-mirror.example", category: "Malware", action: "Blocked" },
+    { time: "10:44:01", user: "Fajar Vendor", url: "hxxps://file-share.example", category: "Policy", action: "Isolated" },
+  ],
   policies: [
     { id: "ZPA-001", group: "EDU-Students", appId: "app-student", minPosture: "P0" },
     { id: "ZPA-002", group: "EDU-Students", appId: "app-lms", minPosture: "P0" },
@@ -38,6 +56,7 @@ const state = {
   ],
   sessions: [],
   logs: [],
+  adminLogs: [],
   cases: [],
 };
 
@@ -53,8 +72,11 @@ const els = {
   decisionCopy: document.querySelector("#decisionCopy"),
   traceList: document.querySelector("#traceList"),
   appCards: document.querySelector("#appCards"),
+  appSearch: document.querySelector("#appSearch"),
+  connectorCards: document.querySelector("#connectorCards"),
   policyBody: document.querySelector("#policyBody"),
   policyCount: document.querySelector("#policyCount"),
+  policySearch: document.querySelector("#policySearch"),
   ruleForm: document.querySelector("#ruleForm"),
   ruleGroup: document.querySelector("#ruleGroup"),
   ruleApp: document.querySelector("#ruleApp"),
@@ -63,6 +85,10 @@ const els = {
   deviceList: document.querySelector("#deviceList"),
   logBody: document.querySelector("#logBody"),
   logFilter: document.querySelector("#logFilter"),
+  logSearch: document.querySelector("#logSearch"),
+  zdxCards: document.querySelector("#zdxCards"),
+  ziaBody: document.querySelector("#ziaBody"),
+  ziaFilter: document.querySelector("#ziaFilter"),
   responseList: document.querySelector("#responseList"),
   responseState: document.querySelector("#responseState"),
   recentList: document.querySelector("#recentList"),
@@ -70,6 +96,11 @@ const els = {
   kpiSessions: document.querySelector("#kpiSessions"),
   kpiBlocked: document.querySelector("#kpiBlocked"),
   kpiRisk: document.querySelector("#kpiRisk"),
+  detailDrawer: document.querySelector("#detailDrawer"),
+  drawerEyebrow: document.querySelector("#drawerEyebrow"),
+  drawerTitle: document.querySelector("#drawerTitle"),
+  drawerBody: document.querySelector("#drawerBody"),
+  closeDrawer: document.querySelector("#closeDrawer"),
 };
 
 function byId(list, id) {
@@ -173,7 +204,9 @@ function renderTrace(trace) {
 }
 
 function renderApps() {
-  els.appCards.innerHTML = state.apps
+  const term = (els.appSearch.value || "").toLowerCase();
+  const apps = state.apps.filter((app) => [app.name, app.segment, app.connector, app.sensitivity].join(" ").toLowerCase().includes(term));
+  els.appCards.innerHTML = apps
     .map(
       (app) => `
         <article class="app-card">
@@ -191,7 +224,34 @@ function renderApps() {
           </div>
           <div class="app-actions">
             <button type="button" data-launch="${app.id}">Launch</button>
-            <button class="ghost" type="button" data-inspect="${app.id}">Inspect</button>
+            <button class="ghost" type="button" data-detail-app="${app.id}">Details</button>
+          </div>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function renderConnectors() {
+  els.connectorCards.innerHTML = state.connectors
+    .map(
+      (connector) => `
+        <article class="app-card">
+          <header>
+            <div>
+              <strong>${connector.group}</strong>
+              <small>${connector.site}</small>
+            </div>
+            <span class="pill">${connector.status}</span>
+          </header>
+          <div class="metric-row">
+            <div class="metric-box"><strong>${connector.heartbeat}</strong><small>Heartbeat</small></div>
+            <div class="metric-box"><strong>${connector.cpu}</strong><small>CPU</small></div>
+            <div class="metric-box"><strong>${connector.latency}</strong><small>Latency</small></div>
+          </div>
+          <div class="app-actions">
+            <button type="button" data-detail-connector="${connector.id}">Details</button>
+            <button class="ghost" type="button" data-check-connector="${connector.id}">Check</button>
           </div>
         </article>
       `,
@@ -200,8 +260,13 @@ function renderApps() {
 }
 
 function renderPolicies() {
+  const term = (els.policySearch.value || "").toLowerCase();
+  const policies = state.policies.filter((rule) => {
+    const app = byId(state.apps, rule.appId);
+    return [rule.id, rule.group, app.name, rule.minPosture].join(" ").toLowerCase().includes(term);
+  });
   els.policyCount.textContent = `${state.policies.length} rules`;
-  els.policyBody.innerHTML = state.policies
+  els.policyBody.innerHTML = policies
     .map((rule) => {
       const app = byId(state.apps, rule.appId);
       return `
@@ -210,7 +275,10 @@ function renderPolicies() {
           <td>${rule.group}</td>
           <td>${app.name}</td>
           <td>${rule.minPosture}+</td>
-          <td><button class="ghost" type="button" data-delete-policy="${rule.id}">Delete</button></td>
+          <td>
+            <button class="ghost" type="button" data-detail-policy="${rule.id}">Details</button>
+            <button class="ghost" type="button" data-delete-policy="${rule.id}">Delete</button>
+          </td>
         </tr>
       `;
     })
@@ -258,7 +326,12 @@ function renderDevices() {
 
 function renderLogs() {
   const filter = els.logFilter.value;
-  const logs = state.logs.filter((log) => filter === "all" || log.decision === filter);
+  const term = (els.logSearch.value || "").toLowerCase();
+  const logs = state.logs.filter((log) => {
+    const matchesDecision = filter === "all" || log.decision === filter;
+    const matchesSearch = [log.time, log.user, log.group, log.device, log.app, log.policy, log.decision, log.reason].join(" ").toLowerCase().includes(term);
+    return matchesDecision && matchesSearch;
+  });
   if (!logs.length) {
     els.logBody.innerHTML = '<tr><td colspan="5" class="empty">No matching logs.</td></tr>';
     return;
@@ -273,6 +346,47 @@ function renderLogs() {
           <td>${log.app}</td>
           <td>${log.policy}</td>
           <td>${log.decision}</td>
+        </tr>
+      `,
+    )
+    .join("");
+}
+
+function renderZdx() {
+  els.zdxCards.innerHTML = state.zdx
+    .map(
+      (item) => `
+        <article class="app-card">
+          <header>
+            <div>
+              <strong>${item.user}</strong>
+              <small>${item.app}</small>
+            </div>
+            <span class="pill">${item.score}</span>
+          </header>
+          <div class="metric-row">
+            <div class="metric-box"><strong>${item.latency}</strong><small>Latency</small></div>
+            <div class="metric-box"><strong>${item.device}</strong><small>Device</small></div>
+            <div class="metric-box"><strong>${item.path}</strong><small>Path</small></div>
+          </div>
+        </article>
+      `,
+    )
+    .join("");
+}
+
+function renderZia() {
+  const filter = els.ziaFilter.value;
+  const events = state.ziaEvents.filter((event) => filter === "all" || event.category === filter);
+  els.ziaBody.innerHTML = events
+    .map(
+      (event) => `
+        <tr>
+          <td>${event.time}</td>
+          <td>${event.user}</td>
+          <td>${event.url}</td>
+          <td>${event.category}</td>
+          <td>${event.action}</td>
         </tr>
       `,
     )
@@ -333,13 +447,33 @@ function renderKpis() {
 
 function renderAll() {
   renderApps();
+  renderConnectors();
   renderPolicies();
   renderSessions();
   renderDevices();
   renderLogs();
+  renderZdx();
+  renderZia();
   renderRecent();
   renderCases();
   renderKpis();
+}
+
+function detailRows(rows) {
+  return `<div class="detail-grid">${rows.map(([label, value]) => `<div class="detail-row"><span>${label}</span><strong>${value}</strong></div>`).join("")}</div>`;
+}
+
+function openDrawer(type, title, rows) {
+  els.drawerEyebrow.textContent = type;
+  els.drawerTitle.textContent = title;
+  els.drawerBody.innerHTML = detailRows(rows);
+  els.detailDrawer.classList.add("open");
+  els.detailDrawer.setAttribute("aria-hidden", "false");
+}
+
+function closeDrawer() {
+  els.detailDrawer.classList.remove("open");
+  els.detailDrawer.setAttribute("aria-hidden", "true");
 }
 
 function showPage(pageName) {
@@ -451,6 +585,7 @@ els.ruleForm.addEventListener("submit", (event) => {
     decision: "Policy Update",
     reason: `Allow rule created for ${els.ruleGroup.value}.`,
   });
+  state.adminLogs.unshift({ time: now(), admin: "Policy Admin", action: "Create Policy", target: id });
   renderAll();
 });
 
@@ -471,17 +606,62 @@ document.addEventListener("click", (event) => {
     submitAccess(launchApp);
   }
 
-  const inspectApp = target.dataset.inspect;
-  if (inspectApp) {
-    const app = byId(state.apps, inspectApp);
-    els.decisionBadge.textContent = "Inspect";
-    els.decisionBadge.className = "decision waiting";
-    els.decisionCopy.textContent = `${app.name}: ${app.segment}, ${app.connector}, TCP ${app.port}, ${app.sensitivity} sensitivity.`;
-    renderTrace([
-      ["pass", "Application segment", app.segment],
-      ["pass", "Connector group", app.connector],
-      ["pass", "Health", app.health],
+  const detailApp = target.dataset.detailApp;
+  if (detailApp) {
+    const app = byId(state.apps, detailApp);
+    const assigned = state.policies.filter((policy) => policy.appId === app.id).map((policy) => policy.id).join(", ") || "No allow policy";
+    openDrawer("Application Segment", app.name, [
+      ["Segment", app.segment],
+      ["Connector Group", app.connector],
+      ["Port", `TCP ${app.port}`],
+      ["Sensitivity", app.sensitivity],
+      ["Health", app.health],
+      ["Assigned Policies", assigned],
     ]);
+  }
+
+  const detailPolicy = target.dataset.detailPolicy;
+  if (detailPolicy) {
+    const policy = state.policies.find((item) => item.id === detailPolicy);
+    const app = byId(state.apps, policy.appId);
+    openDrawer("Access Policy", policy.id, [
+      ["User Group", policy.group],
+      ["Application", app.name],
+      ["Application Segment", app.segment],
+      ["Minimum Posture", `${policy.minPosture}+`],
+      ["Action", "Allow"],
+      ["Priority", "First match by group and app segment"],
+    ]);
+  }
+
+  const detailConnector = target.dataset.detailConnector;
+  if (detailConnector) {
+    const connector = byId(state.connectors, detailConnector);
+    openDrawer("App Connector Group", connector.group, [
+      ["Placement", connector.site],
+      ["Status", connector.status],
+      ["Last Heartbeat", connector.heartbeat],
+      ["CPU", connector.cpu],
+      ["Latency", connector.latency],
+      ["Protected Apps", connector.apps.join(", ")],
+    ]);
+  }
+
+  const checkConnector = target.dataset.checkConnector;
+  if (checkConnector) {
+    const connector = byId(state.connectors, checkConnector);
+    connector.heartbeat = "just now";
+    state.logs.unshift({
+      time: now(),
+      user: "Connector Monitor",
+      group: "System",
+      device: connector.group,
+      app: connector.apps.join(", "),
+      policy: "CONNECTOR-CHECK",
+      decision: "Healthy",
+      reason: `${connector.group} health check completed.`,
+    });
+    renderAll();
   }
 
   const policyId = target.dataset.deletePolicy;
@@ -517,6 +697,11 @@ document.addEventListener("click", (event) => {
     renderAll();
   }
 
+  if (target.id === "refreshConnectors") {
+    state.connectors = state.connectors.map((connector) => ({ ...connector, heartbeat: "just now", status: "Healthy" }));
+    renderAll();
+  }
+
   const containId = target.dataset.contain;
   if (containId) {
     const item = state.cases.find((entry) => entry.id === containId);
@@ -543,6 +728,10 @@ document.addEventListener("click", (event) => {
   if (target.id === "exportLogs") {
     exportCsv();
   }
+
+  if (target.id === "closeDrawer" || target.id === "detailDrawer") {
+    closeDrawer();
+  }
 });
 
 document.addEventListener("change", (event) => {
@@ -568,6 +757,11 @@ document.addEventListener("change", (event) => {
 });
 
 els.logFilter.addEventListener("change", renderLogs);
+els.logSearch.addEventListener("input", renderLogs);
+els.appSearch.addEventListener("input", renderApps);
+els.policySearch.addEventListener("input", renderPolicies);
+els.ziaFilter.addEventListener("change", renderZia);
+els.closeDrawer.addEventListener("click", closeDrawer);
 
 fillSelects();
 renderTrace([["pass", "Control plane ready", "Identity, posture, policy, application, and response modules are available."]]);

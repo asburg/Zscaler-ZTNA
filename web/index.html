@@ -21,9 +21,12 @@
           <a href="#home" class="nav-link active" data-page-link="home">Overview</a>
           <a href="#access" class="nav-link" data-page-link="access">Access Broker</a>
           <a href="#apps" class="nav-link" data-page-link="apps">Private Apps</a>
+          <a href="#connectors" class="nav-link" data-page-link="connectors">App Connectors</a>
           <a href="#policies" class="nav-link" data-page-link="policies">Policy Control</a>
           <a href="#sessions" class="nav-link" data-page-link="sessions">Sessions</a>
           <a href="#devices" class="nav-link" data-page-link="devices">Devices</a>
+          <a href="#zdx" class="nav-link" data-page-link="zdx">ZDX Monitoring</a>
+          <a href="#zia" class="nav-link" data-page-link="zia">ZIA Security</a>
           <a href="#logs" class="nav-link" data-page-link="logs">Logs</a>
           <a href="#response" class="nav-link" data-page-link="response">Response</a>
         </nav>
@@ -99,7 +102,9 @@
               <div class="quick-actions">
                 <button type="button" data-go-page="access">Open Private App</button>
                 <button class="secondary" type="button" data-go-page="apps">View App Segments</button>
+                <button class="secondary" type="button" data-go-page="connectors">Check Connectors</button>
                 <button class="secondary" type="button" data-go-page="policies">Manage Policies</button>
+                <button class="secondary" type="button" data-go-page="zdx">Monitor Experience</button>
                 <button class="secondary" type="button" data-go-page="response">Review Response Queue</button>
               </div>
             </section>
@@ -185,10 +190,26 @@
               <p class="eyebrow">Application Segmentation</p>
               <h1>Private Apps</h1>
             </div>
-            <button class="secondary" id="refreshApps" type="button">Refresh Health</button>
+            <div class="tools">
+              <input id="appSearch" type="search" placeholder="Search apps, segments, connectors">
+              <button class="secondary" id="refreshApps" type="button">Refresh Health</button>
+            </div>
           </header>
           <section class="panel">
             <div class="cards" id="appCards"></div>
+          </section>
+        </section>
+
+        <section class="page" data-page="connectors">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">App Connector Operations</p>
+              <h1>Connector Groups</h1>
+            </div>
+            <button class="secondary" id="refreshConnectors" type="button">Run Health Check</button>
+          </header>
+          <section class="panel">
+            <div class="cards" id="connectorCards"></div>
           </section>
         </section>
 
@@ -198,7 +219,10 @@
               <p class="eyebrow">Policy Control</p>
               <h1>Access Rules</h1>
             </div>
-            <span class="tag" id="policyCount">0 rules</span>
+            <div class="tools">
+              <input id="policySearch" type="search" placeholder="Search policies">
+              <span class="tag" id="policyCount">0 rules</span>
+            </div>
           </header>
           <section class="grid-main">
             <section class="panel">
@@ -286,6 +310,52 @@
           </section>
         </section>
 
+        <section class="page" data-page="zdx">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Digital Experience</p>
+              <h1>ZDX Monitoring</h1>
+            </div>
+            <span class="tag">User experience telemetry</span>
+          </header>
+          <section class="panel">
+            <div class="cards" id="zdxCards"></div>
+          </section>
+        </section>
+
+        <section class="page" data-page="zia">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Internet Security</p>
+              <h1>ZIA Security Events</h1>
+            </div>
+            <div class="tools">
+              <select id="ziaFilter">
+                <option value="all">All categories</option>
+                <option value="Phishing">Phishing</option>
+                <option value="Malware">Malware</option>
+                <option value="Policy">Policy</option>
+              </select>
+            </div>
+          </header>
+          <section class="panel">
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>URL</th>
+                    <th>Category</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="ziaBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </section>
+
         <section class="page" data-page="logs">
           <header class="page-header">
             <div>
@@ -293,6 +363,7 @@
               <h1>Access Logs</h1>
             </div>
             <div class="tools">
+              <input id="logSearch" type="search" placeholder="Search logs">
               <select id="logFilter">
                 <option value="all">All decisions</option>
                 <option value="Allow">Allowed</option>
@@ -333,6 +404,19 @@
         </section>
       </main>
     </div>
+
+    <aside class="drawer" id="detailDrawer" aria-hidden="true">
+      <div class="drawer-panel">
+        <header class="drawer-head">
+          <div>
+            <p class="eyebrow" id="drawerEyebrow">Details</p>
+            <h2 id="drawerTitle">Selected Item</h2>
+          </div>
+          <button class="ghost" type="button" id="closeDrawer">Close</button>
+        </header>
+        <div class="drawer-body" id="drawerBody"></div>
+      </div>
+    </aside>
 
     <script src="app.js"></script>
   </body>
