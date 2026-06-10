@@ -65,6 +65,7 @@ const els = {
   logFilter: document.querySelector("#logFilter"),
   responseList: document.querySelector("#responseList"),
   responseState: document.querySelector("#responseState"),
+  recentList: document.querySelector("#recentList"),
   kpiApps: document.querySelector("#kpiApps"),
   kpiSessions: document.querySelector("#kpiSessions"),
   kpiBlocked: document.querySelector("#kpiBlocked"),
@@ -278,6 +279,28 @@ function renderLogs() {
     .join("");
 }
 
+function renderRecent() {
+  if (!state.logs.length) {
+    els.recentList.innerHTML = '<div class="recent-item"><span class="pill">Idle</span><div><strong>No recent access events</strong><small>Use Quick Access to open a private application session.</small></div><span class="pill">Ready</span></div>';
+    return;
+  }
+  els.recentList.innerHTML = state.logs
+    .slice(0, 5)
+    .map(
+      (log) => `
+        <div class="recent-item">
+          <span class="pill">${log.time}</span>
+          <div>
+            <strong>${log.user} - ${log.app}</strong>
+            <small>${log.policy}: ${log.reason}</small>
+          </div>
+          <span class="pill">${log.decision}</span>
+        </div>
+      `,
+    )
+    .join("");
+}
+
 function renderCases() {
   els.responseState.textContent = state.cases.length ? `${state.cases.length} open case` : "No open case";
   if (!state.cases.length) {
@@ -314,8 +337,19 @@ function renderAll() {
   renderSessions();
   renderDevices();
   renderLogs();
+  renderRecent();
   renderCases();
   renderKpis();
+}
+
+function showPage(pageName) {
+  document.querySelectorAll(".page").forEach((page) => {
+    page.classList.toggle("active", page.dataset.page === pageName);
+  });
+  document.querySelectorAll("[data-page-link]").forEach((link) => {
+    link.classList.toggle("active", link.dataset.pageLink === pageName);
+  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function addLog({ user, app, result, device }) {
@@ -424,9 +458,15 @@ document.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
 
+  const pageLink = target.dataset.pageLink || target.dataset.goPage;
+  if (pageLink) {
+    showPage(pageLink);
+  }
+
   const launchApp = target.dataset.launch;
   if (launchApp) {
     els.appSelect.value = launchApp;
+    showPage("access");
     submitAccess(launchApp);
   }
 

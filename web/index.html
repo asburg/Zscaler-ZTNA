@@ -17,15 +17,15 @@
           </div>
         </div>
 
-        <nav>
-          <a href="#overview" class="active">Overview</a>
-          <a href="#access">Access Broker</a>
-          <a href="#apps">Private Apps</a>
-          <a href="#policies">Policy Control</a>
-          <a href="#sessions">Sessions</a>
-          <a href="#devices">Devices</a>
-          <a href="#logs">Logs</a>
-          <a href="#response">Response</a>
+        <nav aria-label="Main navigation">
+          <button class="nav-link active" type="button" data-page-link="home">Home</button>
+          <button class="nav-link" type="button" data-page-link="access">Access Broker</button>
+          <button class="nav-link" type="button" data-page-link="apps">Private Apps</button>
+          <button class="nav-link" type="button" data-page-link="policies">Policy Control</button>
+          <button class="nav-link" type="button" data-page-link="sessions">Sessions</button>
+          <button class="nav-link" type="button" data-page-link="devices">Devices</button>
+          <button class="nav-link" type="button" data-page-link="logs">Logs</button>
+          <button class="nav-link" type="button" data-page-link="response">Response</button>
         </nav>
 
         <div class="tenant-card">
@@ -36,196 +36,227 @@
       </aside>
 
       <main class="workspace">
-        <header class="topbar" id="overview">
-          <div>
-            <p class="eyebrow">Private Access Control Plane</p>
-            <h1>Zero Trust Private Application Access</h1>
-            <p class="summary">
-              Identity-aware access control for education applications, administrative systems,
-              developer APIs, contractor access, endpoint posture, and incident response.
-            </p>
-          </div>
-          <div class="health-grid">
-            <div class="health-card">
-              <span class="status-dot ok"></span>
-              <strong>ZPA</strong>
-              <small>Operational</small>
+        <section class="page active" data-page="home">
+          <header class="topbar">
+            <div>
+              <p class="eyebrow">Private Access Control Plane</p>
+              <h1>Zero Trust Private Application Access</h1>
+              <p class="summary">
+                Monitor access posture, launch protected applications, review the latest access activity,
+                and respond to policy events from one operational dashboard.
+              </p>
             </div>
-            <div class="health-card">
-              <span class="status-dot ok"></span>
-              <strong>ZIA</strong>
-              <small>Filtering</small>
-            </div>
-            <div class="health-card">
-              <span class="status-dot ok"></span>
-              <strong>ZDX</strong>
-              <small>Monitoring</small>
-            </div>
-          </div>
-        </header>
-
-        <section class="kpi-grid">
-          <article class="kpi">
-            <span>Application Segments</span>
-            <strong id="kpiApps">0</strong>
-            <small>Protected private apps</small>
-          </article>
-          <article class="kpi">
-            <span>Active Sessions</span>
-            <strong id="kpiSessions">0</strong>
-            <small>Brokered app sessions</small>
-          </article>
-          <article class="kpi">
-            <span>Blocked Requests</span>
-            <strong id="kpiBlocked">0</strong>
-            <small>Policy and posture denials</small>
-          </article>
-          <article class="kpi">
-            <span>Security Posture</span>
-            <strong id="kpiRisk">Normal</strong>
-            <small>Current tenant state</small>
-          </article>
-        </section>
-
-        <section class="grid-main" id="access">
-          <section class="panel">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Access Broker</p>
-                <h2>New Private App Session</h2>
+            <div class="health-grid">
+              <div class="health-card">
+                <span class="status-dot ok"></span>
+                <strong>ZPA</strong>
+                <small>Operational</small>
               </div>
-              <span class="tag">Default deny</span>
+              <div class="health-card">
+                <span class="status-dot ok"></span>
+                <strong>ZIA</strong>
+                <small>Filtering</small>
+              </div>
+              <div class="health-card">
+                <span class="status-dot ok"></span>
+                <strong>ZDX</strong>
+                <small>Monitoring</small>
+              </div>
             </div>
+          </header>
 
-            <form class="form-stack" id="accessForm">
-              <label>
-                User
-                <select id="userSelect"></select>
-              </label>
-
-              <label>
-                Private Application
-                <select id="appSelect"></select>
-              </label>
-
-              <div class="split">
-                <label>
-                  Device
-                  <select id="deviceSelect"></select>
-                </label>
-                <label>
-                  Network Risk
-                  <select id="riskSelect">
-                    <option value="low">Low - trusted network</option>
-                    <option value="medium">Medium - new network</option>
-                    <option value="high">High - risky location</option>
-                  </select>
-                </label>
-              </div>
-
-              <div class="split">
-                <label class="switch">
-                  <input id="mfaToggle" type="checkbox" checked>
-                  <span>MFA verified</span>
-                </label>
-                <label class="switch">
-                  <input id="connectorToggle" type="checkbox" checked>
-                  <span>Client Connector healthy</span>
-                </label>
-              </div>
-
-              <button type="submit">Open Private Application</button>
-            </form>
+          <section class="kpi-grid">
+            <article class="kpi">
+              <span>Application Segments</span>
+              <strong id="kpiApps">0</strong>
+              <small>Protected private apps</small>
+            </article>
+            <article class="kpi">
+              <span>Active Sessions</span>
+              <strong id="kpiSessions">0</strong>
+              <small>Brokered app sessions</small>
+            </article>
+            <article class="kpi">
+              <span>Blocked Requests</span>
+              <strong id="kpiBlocked">0</strong>
+              <small>Policy and posture denials</small>
+            </article>
+            <article class="kpi">
+              <span>Security Posture</span>
+              <strong id="kpiRisk">Normal</strong>
+              <small>Current tenant state</small>
+            </article>
           </section>
 
-          <section class="panel decision-card">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Policy Enforcement</p>
-                <h2>Decision Trace</h2>
+          <section class="home-grid">
+            <section class="panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Quick Access</p>
+                  <h2>Common Actions</h2>
+                </div>
               </div>
-              <span class="decision waiting" id="decisionBadge">Ready</span>
-            </div>
-            <p class="decision-copy" id="decisionCopy">Submit an access request to evaluate identity, posture, policy, segment, and risk.</p>
-            <div class="trace-list" id="traceList"></div>
+              <div class="quick-actions">
+                <button type="button" data-go-page="access">Open Private App</button>
+                <button class="secondary" type="button" data-go-page="apps">View App Segments</button>
+                <button class="secondary" type="button" data-go-page="policies">Manage Policies</button>
+                <button class="secondary" type="button" data-go-page="response">Review Response Queue</button>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Latest Activity</p>
+                  <h2>Recent Access Events</h2>
+                </div>
+                <button class="ghost" type="button" data-go-page="logs">Open Logs</button>
+              </div>
+              <div class="recent-list" id="recentList"></div>
+            </section>
           </section>
         </section>
 
-        <section class="panel" id="apps">
-          <div class="section-head">
+        <section class="page" data-page="access">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Access Broker</p>
+              <h1>New Private App Session</h1>
+            </div>
+            <span class="tag">Default deny</span>
+          </header>
+
+          <section class="grid-main">
+            <section class="panel">
+              <form class="form-stack" id="accessForm">
+                <label>
+                  User
+                  <select id="userSelect"></select>
+                </label>
+                <label>
+                  Private Application
+                  <select id="appSelect"></select>
+                </label>
+                <div class="split">
+                  <label>
+                    Device
+                    <select id="deviceSelect"></select>
+                  </label>
+                  <label>
+                    Network Risk
+                    <select id="riskSelect">
+                      <option value="low">Low - trusted network</option>
+                      <option value="medium">Medium - new network</option>
+                      <option value="high">High - risky location</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="split">
+                  <label class="switch">
+                    <input id="mfaToggle" type="checkbox" checked>
+                    <span>MFA verified</span>
+                  </label>
+                  <label class="switch">
+                    <input id="connectorToggle" type="checkbox" checked>
+                    <span>Client Connector healthy</span>
+                  </label>
+                </div>
+                <button type="submit">Open Private Application</button>
+              </form>
+            </section>
+
+            <section class="panel decision-card">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Policy Enforcement</p>
+                  <h2>Decision Trace</h2>
+                </div>
+                <span class="decision waiting" id="decisionBadge">Ready</span>
+              </div>
+              <p class="decision-copy" id="decisionCopy">Submit an access request to evaluate identity, posture, policy, segment, and risk.</p>
+              <div class="trace-list" id="traceList"></div>
+            </section>
+          </section>
+        </section>
+
+        <section class="page" data-page="apps">
+          <header class="page-header">
             <div>
               <p class="eyebrow">Application Segmentation</p>
-              <h2>Private Apps</h2>
+              <h1>Private Apps</h1>
             </div>
             <button class="secondary" id="refreshApps" type="button">Refresh Health</button>
-          </div>
-          <div class="cards" id="appCards"></div>
-        </section>
-
-        <section class="grid-main" id="policies">
+          </header>
           <section class="panel">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Policy Control</p>
-                <h2>Access Rules</h2>
-              </div>
-              <span class="tag" id="policyCount">0 rules</span>
-            </div>
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Policy</th>
-                    <th>Group</th>
-                    <th>App</th>
-                    <th>Posture</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody id="policyBody"></tbody>
-              </table>
-            </div>
-          </section>
-
-          <section class="panel">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Rule Builder</p>
-                <h2>Add Allow Rule</h2>
-              </div>
-            </div>
-            <form class="form-stack" id="ruleForm">
-              <label>
-                Group
-                <select id="ruleGroup"></select>
-              </label>
-              <label>
-                Application
-                <select id="ruleApp"></select>
-              </label>
-              <label>
-                Minimum Posture
-                <select id="rulePosture">
-                  <option>P0</option>
-                  <option>P1</option>
-                  <option>P2</option>
-                  <option>P3</option>
-                </select>
-              </label>
-              <button type="submit">Create Policy</button>
-            </form>
+            <div class="cards" id="appCards"></div>
           </section>
         </section>
 
-        <section class="grid-main">
-          <section class="panel" id="sessions">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">ZPA User Activity</p>
-                <h2>Active Sessions</h2>
-              </div>
-              <button class="secondary" id="revokeAll" type="button">Revoke All</button>
+        <section class="page" data-page="policies">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Policy Control</p>
+              <h1>Access Rules</h1>
             </div>
+            <span class="tag" id="policyCount">0 rules</span>
+          </header>
+          <section class="grid-main">
+            <section class="panel">
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Policy</th>
+                      <th>Group</th>
+                      <th>App</th>
+                      <th>Posture</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="policyBody"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="section-head">
+                <div>
+                  <p class="eyebrow">Rule Builder</p>
+                  <h2>Add Allow Rule</h2>
+                </div>
+              </div>
+              <form class="form-stack" id="ruleForm">
+                <label>
+                  Group
+                  <select id="ruleGroup"></select>
+                </label>
+                <label>
+                  Application
+                  <select id="ruleApp"></select>
+                </label>
+                <label>
+                  Minimum Posture
+                  <select id="rulePosture">
+                    <option>P0</option>
+                    <option>P1</option>
+                    <option>P2</option>
+                    <option>P3</option>
+                  </select>
+                </label>
+                <button type="submit">Create Policy</button>
+              </form>
+            </section>
+          </section>
+        </section>
+
+        <section class="page" data-page="sessions">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">ZPA User Activity</p>
+              <h1>Active Sessions</h1>
+            </div>
+            <button class="secondary" id="revokeAll" type="button">Revoke All</button>
+          </header>
+          <section class="panel">
             <div class="table-wrap">
               <table>
                 <thead>
@@ -241,34 +272,36 @@
               </table>
             </div>
           </section>
+        </section>
 
-          <section class="panel" id="devices">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Client Connector</p>
-                <h2>Device Posture</h2>
-              </div>
+        <section class="page" data-page="devices">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Client Connector</p>
+              <h1>Device Posture</h1>
             </div>
+          </header>
+          <section class="panel">
             <div class="device-list" id="deviceList"></div>
           </section>
         </section>
 
-        <section class="grid-main">
-          <section class="panel" id="logs">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Audit Trail</p>
-                <h2>Access Logs</h2>
-              </div>
-              <div class="tools">
-                <select id="logFilter">
-                  <option value="all">All decisions</option>
-                  <option value="Allow">Allowed</option>
-                  <option value="Deny">Denied</option>
-                </select>
-                <button class="secondary" id="exportLogs" type="button">Export CSV</button>
-              </div>
+        <section class="page" data-page="logs">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Audit Trail</p>
+              <h1>Access Logs</h1>
             </div>
+            <div class="tools">
+              <select id="logFilter">
+                <option value="all">All decisions</option>
+                <option value="Allow">Allowed</option>
+                <option value="Deny">Denied</option>
+              </select>
+              <button class="secondary" id="exportLogs" type="button">Export CSV</button>
+            </div>
+          </header>
+          <section class="panel">
             <div class="table-wrap">
               <table>
                 <thead>
@@ -284,15 +317,17 @@
               </table>
             </div>
           </section>
+        </section>
 
-          <section class="panel" id="response">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Incident Response</p>
-                <h2>Response Queue</h2>
-              </div>
-              <span class="tag danger" id="responseState">No open case</span>
+        <section class="page" data-page="response">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow">Incident Response</p>
+              <h1>Response Queue</h1>
             </div>
+            <span class="tag danger" id="responseState">No open case</span>
+          </header>
+          <section class="panel">
             <div class="response-list" id="responseList"></div>
           </section>
         </section>
