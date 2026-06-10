@@ -6,7 +6,7 @@ The project requires a comprehensive application of foundational cybersecurity p
 
 The ultimate goal is to enhance the security posture of a simulated education technology environment by rendering internal applications invisible to unauthorized users and external scanners, thereby eliminating lateral movement risks. The project culminates in a detailed technical report, a functional prototype demonstrating ZTNA principles, and an analysis of future trends in Zero Trust security.
 
-**Status:** planning
+**Status:** Deploy
 **Domain:** Education Technology
 **Progress:** 90%
 
