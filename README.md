@@ -8,7 +8,7 @@ The ultimate goal is to enhance the security posture of a simulated education te
 
 **Status:** planning
 **Domain:** Education Technology
-**Progress:** 0%
+**Progress:** 90%
 
 ---
 *Synced from Zaby LMS Capstone Workspace*
