@@ -460,6 +460,7 @@ document.addEventListener("click", (event) => {
 
   const pageLink = target.dataset.pageLink || target.dataset.goPage;
   if (pageLink) {
+    event.preventDefault();
     showPage(pageLink);
   }
 

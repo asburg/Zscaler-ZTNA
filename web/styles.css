@@ -89,10 +89,12 @@ nav {
 }
 
 .nav-link {
+  display: block;
   padding: 11px 12px;
   border-radius: 7px;
   color: #dce5ee;
   text-align: left;
+  text-decoration: none;
   background: transparent;
   border: 0;
   font-weight: 800;
